@@ -1,24 +1,26 @@
-﻿using Il2CppRUMBLE.Players.Subsystems;
+﻿using Il2CppRUMBLE.Managers;
+using Il2CppRUMBLE.Players;
+using Il2CppRUMBLE.Players.Subsystems;
 using MelonLoader;
+using MelonLoader.Utils;
 using RumbleModdingAPI;
 using System;
-using UnityEngine;
+using System.IO;
 using System.Collections;
 using System.Collections.Generic;
-using Il2CppRUMBLE.Players;
-using Il2CppRUMBLE.Managers;
+using UnityEngine;
 
 namespace DiscClicker {
     public static class BuildInfo {
         public const string Name = "DiscClicker";
         public const string Author = "SharpFireRuby";
-        public const string Version = "0.1";
+        public const string Version = "0.1.3";
     }
 
     public class DiscClicker : MelonMod {
         private string currentScene;
 
-        private FileManagerDC FileManagerDC = new FileManagerDC();
+        private string defaultPath = "UserData/DiscClickerSavs";
         private bool buttonSaved;
         private ulong discPointsLast;
         private uint discPointsPerSecond;
@@ -40,15 +42,22 @@ namespace DiscClicker {
 
         public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
             currentScene = sceneName;
+            if (currentScene == "Loader") {
+                LoggerInstance.Msg(File.ReadAllText(defaultPath + "/DiscPoints.sav"));
+                discPointsLast = ulong.Parse(File.ReadAllText(defaultPath + "/DiscPoints.sav"));
+                fistCountTotal = uint.Parse(File.ReadAllText(defaultPath + "/FistTotal.sav"));
+            }
             if (currentScene == "Loader") return;
+            
+            File.WriteAllText(defaultPath + "/DiscPoints.sav", discPointsLast.ToString());
+            File.WriteAllText(defaultPath + "/FistTotal.sav", fistCountTotal.ToString());
+            if (InGameUiCreated) InGameUiHandler.MoveUi(false);
             if (!sceneInit) {
                 if (currentScene == "Gym") {
                     if (!InGameUiCreated) {
                         InGameUiHandler.CreateUi();
                         InGameUiCreated = true;
                         poolPlayerBoxAny = GameObject.Find("Game Instance/Pre-Initializable/PoolManager/Pool: PlayerBoxInteractionVFX (RUMBLE.Pools.PooledVisualEffect)");
-                        FileManagerDC.WriteToSav("\\DiscPoints.sav", discPointsLast.ToString());
-                        FileManagerDC.WriteToSav("\\FistTotal.sav", fistCountTotal.ToString());
                     }
                     InGameUiHandler.MoveUi(0.2f, 1.5f, 1.3f, 90, 220, 0, true);
                 }
@@ -65,9 +74,6 @@ namespace DiscClicker {
 
         public override void OnSceneWasUnloaded(int buildIndex, string sceneName) {
             sceneInit = false;
-            InGameUiHandler.MoveUi(false);
-            FileManagerDC.WriteToSav("\\DiscPoints.sav", discPointsLast.ToString());
-            FileManagerDC.WriteToSav("\\FistTotal.sav", fistCountTotal.ToString());
         }
 
         public override void OnFixedUpdate() {
@@ -97,8 +103,8 @@ namespace DiscClicker {
                 }
                 if (Calls.ControllerMap.LeftController.GetSecondary() > 0 && buttonSaved == false) { // Replace with Fist Bump Detector
                     buttonSaved = true;
-                    FileManagerDC.WriteToSav("\\DiscPoints.sav", discPointsLast.ToString());
-                    FileManagerDC.WriteToSav("\\FistTotal.sav", fistCountTotal.ToString());
+                    File.WriteAllText(defaultPath + "/DiscPoints.sav", discPointsLast.ToString());
+                    File.WriteAllText(defaultPath + "/FistTotal.sav", fistCountTotal.ToString());
                 }
                 else if (Calls.ControllerMap.LeftController.GetSecondary() <= 0) {
                     buttonSaved = false;
@@ -112,15 +118,15 @@ namespace DiscClicker {
         public IEnumerator AutoSave() {
             while (true) {
                 yield return new WaitForSeconds(360);
-                FileManagerDC.WriteToSav("\\DiscPoints.sav", discPointsLast.ToString());
-                FileManagerDC.WriteToSav("\\FistTotal.sav", fistCountTotal.ToString());
+                File.WriteAllText(defaultPath + "/DiscPoints.sav", discPointsLast.ToString());
+                File.WriteAllText(defaultPath + "/FistTotal.sav", fistCountTotal.ToString());
             }
         }
 
         public override void OnDeinitializeMelon() {
             discPointsLast += (ulong)(timeDistance * discPointsPerSecond) + (fistCount * discFistMod);
-            FileManagerDC.WriteToSav("\\DiscPoints.sav", discPointsLast.ToString());
-            FileManagerDC.WriteToSav("\\FistTotal.sav", fistCountTotal.ToString());
+            File.WriteAllText(defaultPath + "/DiscPoints.sav", discPointsLast.ToString());
+            File.WriteAllText(defaultPath + "/FistTotal.sav", fistCountTotal.ToString());
         }
 
         [HarmonyLib.HarmonyPatch(typeof(Il2CppRUMBLE.Players.Subsystems.PlayerBoxInteractionSystem), "OnPlayerBoxInteraction", new Type[] { typeof(PlayerBoxInteractionTrigger), typeof(PlayerBoxInteractionTrigger) })]

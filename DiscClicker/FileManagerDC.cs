@@ -19,10 +19,7 @@ namespace DiscClicker {
         public Array ReadFromUp(string file) {
             return null;
         }
-        public void WriteToSav(string file, string data) {
-            if (!Directory.Exists(defaultPath)) {
-                    Directory.CreateDirectory(defaultPath);
-            }
+        public void WriteToSav(string file, string data) { 
             File.WriteAllText(defaultPath + file, data);
         }
     }

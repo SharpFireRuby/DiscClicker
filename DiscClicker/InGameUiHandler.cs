@@ -7,7 +7,7 @@ using RumbleModdingAPI;
 
 namespace DiscClicker {
     public class InGameUiHandler {
-        public GameObject? backBoard;
+        public GameObject backBoard;
 
         public void CreateUi() {
             backBoard = GameObject.Instantiate(GameObject.Find("--------------LOGIC--------------/Heinhouser products/RegionSelector/Model/"));
