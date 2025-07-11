@@ -47,7 +47,8 @@ namespace DiscClicker {
                         InGameUiHandler.CreateUi();
                         InGameUiCreated = true;
                         poolPlayerBoxAny = GameObject.Find("Game Instance/Pre-Initializable/PoolManager/Pool: PlayerBoxInteractionVFX (RUMBLE.Pools.PooledVisualEffect)");
-                        SavAllValues();
+                        FileManagerDC.WriteToSav("\\DiscPoints.sav", discPointsLast.ToString());
+                        FileManagerDC.WriteToSav("\\FistTotal.sav", fistCountTotal.ToString());
                     }
                     InGameUiHandler.MoveUi(0.2f, 1.5f, 1.3f, 90, 220, 0, true);
                 }
@@ -55,9 +56,7 @@ namespace DiscClicker {
                     InGameUiHandler.MoveUi(-29.3f, -1.5f, -5.6f, 90, 94, 0, true);
                 }
                 else {
-                    if (InGameUiCreated) {
-                        InGameUiHandler.MoveUi(false);
-                    }
+                    InGameUiHandler.MoveUi(false);
                 }
             }
             MelonCoroutines.Start(AutoSave());
@@ -66,6 +65,8 @@ namespace DiscClicker {
 
         public override void OnSceneWasUnloaded(int buildIndex, string sceneName) {
             sceneInit = false;
+            FileManagerDC.WriteToSav("\\DiscPoints.sav", discPointsLast.ToString());
+            FileManagerDC.WriteToSav("\\FistTotal.sav", fistCountTotal.ToString());
         }
 
         public override void OnFixedUpdate() {
@@ -95,7 +96,8 @@ namespace DiscClicker {
                 }
                 if (Calls.ControllerMap.LeftController.GetSecondary() > 0 && buttonSaved == false) { // Replace with Fist Bump Detector
                     buttonSaved = true;
-                    SavAllValues();
+                    FileManagerDC.WriteToSav("\\DiscPoints.sav", discPointsLast.ToString());
+                    FileManagerDC.WriteToSav("\\FistTotal.sav", fistCountTotal.ToString());
                 }
                 else if (Calls.ControllerMap.LeftController.GetSecondary() <= 0) {
                     buttonSaved = false;
@@ -109,16 +111,13 @@ namespace DiscClicker {
         public IEnumerator AutoSave() {
             while (true) {
                 yield return new WaitForSeconds(360);
-                SavAllValues();
+                FileManagerDC.WriteToSav("\\DiscPoints.sav", discPointsLast.ToString());
+                FileManagerDC.WriteToSav("\\FistTotal.sav", fistCountTotal.ToString());
             }
         }
 
         public override void OnDeinitializeMelon() {
             discPointsLast += (ulong)(timeDistance * discPointsPerSecond) + (fistCount * discFistMod);
-            SavAllValues();
-        }
-
-        public void SavAllValues() {
             FileManagerDC.WriteToSav("\\DiscPoints.sav", discPointsLast.ToString());
             FileManagerDC.WriteToSav("\\FistTotal.sav", fistCountTotal.ToString());
         }
