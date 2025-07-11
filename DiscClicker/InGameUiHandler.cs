@@ -22,10 +22,10 @@ namespace DiscClicker {
             backBoard.SetActive(false);
         }
         public void MoveUi(float x, float y, float z, int xr, int yr, int zr, bool visible) {
+            backBoard.SetActive(visible);
             backBoard.transform.position = new Vector3(x, y, z);
             backBoard.transform.rotation = Quaternion.Euler(xr, yr, zr);
             backBoard.transform.localScale = Vector3.one * 2;
-            backBoard.SetActive(visible);
         }
         public void MoveUi(bool visible) {
             backBoard.SetActive(visible);
