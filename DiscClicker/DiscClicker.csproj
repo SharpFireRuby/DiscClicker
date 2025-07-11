@@ -628,5 +628,6 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\RUMBLE\Mods\$(TargetFileName)"</PostBuildEvent>
+    <PostBuildEvent>copy "$(TargetPath)" "C:\Users\Adam Michels\Desktop\Folders\Rumble Modding\$(TargetFileName)"</PostBuildEvent>
   </PropertyGroup>
 </Project>

@@ -65,6 +65,7 @@ namespace DiscClicker {
 
         public override void OnSceneWasUnloaded(int buildIndex, string sceneName) {
             sceneInit = false;
+            InGameUiHandler.MoveUi(false);
             FileManagerDC.WriteToSav("\\DiscPoints.sav", discPointsLast.ToString());
             FileManagerDC.WriteToSav("\\FistTotal.sav", fistCountTotal.ToString());
         }
