@@ -38,22 +38,26 @@ namespace DiscClicker {
         public bool InGameUiCreated = false;
         private static GameObject poolPlayerBoxAny;
         private static List<GameObject> startedPoolPlayerBoxAny = new List<GameObject>();
-        private static readonly bool debug = false;
+
+        private bool debug = false;
 
         public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
             currentScene = sceneName;
             if (currentScene == "Loader") {
+                if (!Directory.Exists(defaultPath)) {
+                    Directory.CreateDirectory(defaultPath);
+                }
                 LoggerInstance.Msg(File.ReadAllText(defaultPath + "/DiscPoints.sav"));
                 discPointsLast = ulong.Parse(File.ReadAllText(defaultPath + "/DiscPoints.sav"));
                 fistCountTotal = uint.Parse(File.ReadAllText(defaultPath + "/FistTotal.sav"));
             }
             if (currentScene == "Loader") return;
-            discPointsCalc = (ulong)(discPointsLast + (timeDistance * discPointsPerSecond) + (fistCount * discFistMod));
-            File.WriteAllText(defaultPath + "/DiscPoints.sav", discPointsCalc.ToString());
-            fistCount = 0;
-            File.WriteAllText(defaultPath + "/FistTotal.sav", fistCountTotal.ToString());
             if (InGameUiCreated) InGameUiHandler.MoveUi(false);
             if (!sceneInit) {
+                discPointsCalc = (ulong)(discPointsLast + (timeDistance * discPointsPerSecond) + (fistCount * discFistMod));
+                File.WriteAllText(defaultPath + "/DiscPoints.sav", discPointsCalc.ToString());
+                fistCount = 0;
+                File.WriteAllText(defaultPath + "/FistTotal.sav", fistCountTotal.ToString());
                 if (currentScene == "Gym") {
                     if (!InGameUiCreated) {
                         InGameUiHandler.CreateUi();
@@ -74,6 +78,7 @@ namespace DiscClicker {
         }
 
         public override void OnSceneWasUnloaded(int buildIndex, string sceneName) {
+            if (InGameUiCreated) InGameUiHandler.MoveUi(false);
             sceneInit = false;
         }
 
