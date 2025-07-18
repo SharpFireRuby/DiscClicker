@@ -6,7 +6,7 @@ using Il2CppTMPro;
 using RumbleModdingAPI;
 
 namespace DiscClicker {
-    public class InGameUiHandler {
+    public class InGameUiHandler : MelonMod {
         public GameObject backBoard;
 
         public void CreateUi() {

@@ -13,7 +13,7 @@ namespace DiscClicker {
     public static class BuildInfo {
         public const string Name = "DiscClicker";
         public const string Author = "SharpFireRuby";
-        public const string Version = "0.1.3";
+        public const string Version = "0.1.4";
     }
 
     public class DiscClicker : MelonMod {
@@ -47,12 +47,14 @@ namespace DiscClicker {
                     Directory.CreateDirectory(defaultPath);
                 }
                 LoggerInstance.Msg(File.ReadAllText(defaultPath + "/DiscPoints.sav"));
-                discPointsLast = ulong.Parse(File.ReadAllText(defaultPath + "/DiscPoints.sav"));
-                fistCountTotal = uint.Parse(File.ReadAllText(defaultPath + "/FistTotal.sav"));
+                if (!File.Exists(defaultPath + "/DiscPoints.sav")) { File.Create(defaultPath + "/DiscPoints.sav"); }
+                else { discPointsLast = ulong.Parse(File.ReadAllText(defaultPath + "/DiscPoints.sav")); }
+                if (!File.Exists(defaultPath + "/FistTotal.sav")) { File.Create(defaultPath + "/FistTotal.sav"); }
+                else { fistCountTotal = uint.Parse(File.ReadAllText(defaultPath + "/FistTotal.sav")); }
             }
             if (currentScene == "Loader") return;
-            if (InGameUiCreated) InGameUiHandler.MoveUi(false);
             if (!sceneInit) {
+                if (InGameUiCreated) InGameUiHandler.MoveUi(false);
                 discPointsCalc = (ulong)(discPointsLast + (timeDistance * discPointsPerSecond) + (fistCount * discFistMod));
                 File.WriteAllText(defaultPath + "/DiscPoints.sav", discPointsCalc.ToString());
                 fistCount = 0;
@@ -73,7 +75,13 @@ namespace DiscClicker {
                 }
             }
             MelonCoroutines.Start(AutoSave());
+            MelonCoroutines.Start(AfterSceneLoad());
             sceneInit = true;
+        }
+
+        public IEnumerator AfterSceneLoad() {
+            yield return null;
+            if (InGameUiCreated && currentScene != "Gym" && currentScene != "Park") InGameUiHandler.MoveUi(false);
         }
 
         public override void OnSceneWasUnloaded(int buildIndex, string sceneName) {
@@ -98,7 +106,7 @@ namespace DiscClicker {
                 }
             }
             if (debug) {
-                if (Calls.ControllerMap.RightController.GetSecondary() > 0 && fistBumped == false) { // Replace with Fist Bump Detector
+                if (Calls.ControllerMap.RightController.GetSecondary() > 0 && fistBumped == false) {
                     fistBumped = true;
                     fistCount++;
                     fistCountTotal++;
@@ -106,7 +114,7 @@ namespace DiscClicker {
                 else if (Calls.ControllerMap.RightController.GetSecondary() <= 0) {
                     fistBumped = false;
                 }
-                if (Calls.ControllerMap.LeftController.GetSecondary() > 0 && buttonSaved == false) { // Replace with Fist Bump Detector
+                if (Calls.ControllerMap.LeftController.GetSecondary() > 0 && buttonSaved == false) {
                     buttonSaved = true;
                     discPointsCalc = (ulong)(discPointsLast + (timeDistance * discPointsPerSecond) + (fistCount * discFistMod));
                     File.WriteAllText(defaultPath + "/DiscPoints.sav", discPointsLast.ToString());
