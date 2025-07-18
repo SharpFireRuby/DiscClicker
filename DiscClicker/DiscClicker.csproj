@@ -620,9 +620,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FileManagerDC.cs" />
     <Compile Include="InGameUiHandler.cs" />
     <Compile Include="Starter.cs" />
+    <Compile Include="Logger.cs"/>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -2,7 +2,6 @@
 using Il2CppRUMBLE.Players;
 using Il2CppRUMBLE.Players.Subsystems;
 using MelonLoader;
-using MelonLoader.Utils;
 using RumbleModdingAPI;
 using System;
 using System.IO;
@@ -39,7 +38,7 @@ namespace DiscClicker {
         private static GameObject poolPlayerBoxAny;
         private static List<GameObject> startedPoolPlayerBoxAny = new List<GameObject>();
 
-        private bool debug = false;
+        private static bool debug = false;
 
         public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
             currentScene = sceneName;

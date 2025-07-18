@@ -1,16 +1,13 @@
-using System;
-using DiscClicker;
 using MelonLoader;
-using UnityEngine;
-using Il2CppTMPro;
-using RumbleModdingAPI;
+using System;
+using System.IO;
 
 namespace DiscClicker {
-    public class CustomLogger {
-        public void LogCustom(array message) {
-            if (File.Exists(DiscClicker.defaultPath + "/dev.txt")) {
+    public class CustomLogger : MelonMod {
+        public void LogCustom(string defaultPath, Array message) {
+            if (File.Exists(defaultPath + "/dev.txt")) {
                 foreach (var item in message) {
-                    LoggerInstance.Msg(message.toString());
+                    LoggerInstance.Msg(message);
                 }
             }
             else return;
