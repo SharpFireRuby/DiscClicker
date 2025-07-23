@@ -46,19 +46,11 @@ namespace DiscClicker {
                 if (!Directory.Exists(defaultPath)) {
                     Directory.CreateDirectory(defaultPath);
                 }
-                LoggerInstance.Msg(File.ReadAllText(defaultPath + "/DiscPoints.sav"));
-                if (!File.Exists(defaultPath + "/DiscPoints.sav")) { File.Create(defaultPath + "/DiscPoints.sav"); }
-                else { discPointsLast = ulong.Parse(File.ReadAllText(defaultPath + "/DiscPoints.sav")); }
-                if (!File.Exists(defaultPath + "/FistTotal.sav")) { File.Create(defaultPath + "/FistTotal.sav"); }
-                else { fistCountTotal = uint.Parse(File.ReadAllText(defaultPath + "/FistTotal.sav")); }
             }
+
             if (currentScene == "Loader") return;
             if (!sceneInit) {
                 if (InGameUiCreated) InGameUiHandler.MoveUi(false);
-                discPointsCalc = (ulong)(discPointsLast + (timeDistance * discPointsPerSecond) + (fistCount * discFistMod));
-                File.WriteAllText(defaultPath + "/DiscPoints.sav", discPointsCalc.ToString());
-                fistCount = 0;
-                File.WriteAllText(defaultPath + "/FistTotal.sav", fistCountTotal.ToString());
                 if (currentScene == "Gym") {
                     if (!InGameUiCreated) {
                         InGameUiHandler.CreateUi();
@@ -74,6 +66,7 @@ namespace DiscClicker {
                     InGameUiHandler.MoveUi(false);
                 }
             }
+
             MelonCoroutines.Start(AutoSave());
             MelonCoroutines.Start(AfterSceneLoad());
             sceneInit = true;
@@ -82,10 +75,21 @@ namespace DiscClicker {
         public IEnumerator AfterSceneLoad() {
             yield return null;
             if (InGameUiCreated && currentScene != "Gym" && currentScene != "Park") InGameUiHandler.MoveUi(false);
+            LoggerInstance.Msg("Checking and Parsing sav files...");
+            if (!File.Exists(defaultPath + "/DiscPoints.sav")) File.Create(defaultPath + "/DiscPoints.sav");
+            else discPointsLast = ulong.Parse(File.ReadAllText(defaultPath + "/DiscPoints.sav"));
+            if (!File.Exists(defaultPath + "/FistTotal.sav")) File.Create(defaultPath + "/FistTotal.sav");
+            else fistCountTotal = uint.Parse(File.ReadAllText(defaultPath + "/FistTotal.sav"));
         }
 
         public override void OnSceneWasUnloaded(int buildIndex, string sceneName) {
             if (InGameUiCreated) InGameUiHandler.MoveUi(false);
+
+            LoggerInstance.Msg("New scene! Saving all varibles...");
+            discPointsCalc = (ulong)(discPointsLast + (timeDistance * discPointsPerSecond) + (fistCount * discFistMod));
+            File.WriteAllText(defaultPath + "/DiscPoints.sav", discPointsCalc.ToString());
+            fistCount = 0;
+            File.WriteAllText(defaultPath + "/FistTotal.sav", fistCountTotal.ToString());
             sceneInit = false;
         }
 
@@ -94,7 +98,6 @@ namespace DiscClicker {
                 discPointsCalc = (ulong)(discPointsLast + (timeDistance * discPointsPerSecond) + (fistCount * discFistMod));
                 // use the naming system that cookie clicker does, probably with a funtion
                 InGameUiHandler.UpdateUi(discPointsCalc); // disckPointsCalcRead
-                // change the backBoard UI com
             }
 
             if (InGameUiCreated) {
@@ -132,15 +135,18 @@ namespace DiscClicker {
 
         public IEnumerator AutoSave() {
             while (true) {
-                yield return new WaitForSeconds(360);
+                yield return new WaitForSeconds(30);
+                LoggerInstance.Msg("Auto Saved Discs!");
                 discPointsCalc = (ulong)(discPointsLast + (timeDistance * discPointsPerSecond) + (fistCount * discFistMod));
                 File.WriteAllText(defaultPath + "/DiscPoints.sav", discPointsCalc.ToString());
+                discPointsLast = ulong.Parse(File.ReadAllText(defaultPath + "/DiscPoints.sav"));
                 fistCount = 0;
                 File.WriteAllText(defaultPath + "/FistTotal.sav", fistCountTotal.ToString());
             }
         }
 
         public override void OnDeinitializeMelon() {
+            LoggerInstance.Msg("Melon Deinitialized, saving Disc count!");
             discPointsLast += (ulong)(timeDistance * discPointsPerSecond) + (fistCount * discFistMod);
             File.WriteAllText(defaultPath + "/DiscPoints.sav", discPointsLast.ToString());
             fistCount = 0;
